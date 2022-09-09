@@ -1,17 +1,46 @@
-SELECT album_name, release_date FROM album_List
-WHERE release_date BETWEEN '2018-01-01' AND '2018-12-31';
+import sqlalchemy
+import psycopg2
+from pprint import pprint
 
-SELECT track_name, track_time FROM Track_List
-ORDER BY track_time DESC;
+engine = sqlalchemy.create_engine('postgresql://postgres:user@localhost:5432/netology2021')
+pprint(engine)
 
-SELECT track_name FROM Track_List
-WHERE track_time >= 03.50;
+connection = engine.connect()
+print(connection)
+pprint(engine.table_names())
 
-SELECT collection_name FROM collection_List
-WHERE release_date BETWEEN '2018-01-01' AND '2020-12-31';
+#1.Название и год выхода альбомов, вышедших в 2018 году
+select_1 = connection.execute('''SELECT  name, releasedate FROM album
+WHERE releasedate BETWEEN '2018-01-01' AND '2018-12-31';
+''').fetchall()
+pprint(select_1)
 
-SELECT name FROM artist_list
-WHERE name NOT LIKE '% %';
+#2.Название и продолжительность самого длительного трека
+select_2 = connection.execute('''SELECT   name, tracklength FROM track
+ORDER BY tracklength DESC;
+''').fetchone()
+pprint(select_2)
 
-SELECT track_name FROM Track_List
-WHERE track_name LIKE '%my%' OR '%мой%';
+#3.Название треков, продолжительность которых не менее 3,5 минуты
+select_3 = connection.execute('''SELECT  name FROM track
+WHERE tracklength >= 03.50;
+''').fetchall()
+pprint(select_3)
+
+#4.Названия сборников, вышедших в период с 2018 по 2020 год включительно
+select_4 = connection.execute('''SELECT name FROM collections
+WHERE release_year BETWEEN '2018-01-01' AND '2020-12-31';
+''').fetchall()
+pprint(select_4)
+
+#5.Исполнители, чье имя состоит из 1 слова
+select_5 = connection.execute('''SELECT name FROM artist
+WHERE name NOT LIKE '%% %%';
+''').fetchall()
+pprint(select_5)
+
+#6.Название треков, которые содержат слово "мой"/"my"
+select_6 = connection.execute('''SELECT name FROM track
+WHERE name LIKE '%%my%%';
+''').fetchall()
+pprint(select_6)
